@@ -28,7 +28,7 @@ Din kode → Hackathon Lite-serveren → Google Gemini → svar tilbake
 | Base URL | Google sine servere | `https://hackathonlite-production.up.railway.app` |
 | Budsjett | — | $30 per lag (automatisk stopp) |
 
-Den store fordelen: APIet er **OpenAI-kompatibelt**, så du bruker `openai`-biblioteket i Python. Det er godt dokumentert og enkelt å bruke.
+En liten ting som kan virke rart: du bruker `openai`-biblioteket i Python – selv om AI-en er Gemini, ikke ChatGPT. Dette er fordi LiteLLM (proxy-serveren vår) snakker samme "språk" som OpenAI sitt API. `openai`-biblioteket er bare en klient som sender forespørsler i riktig format – tenk på det som å bruke Chrome for å åpne en hvilken som helst nettside. **Modellen du faktisk snakker med er Google Gemini.**
 
 ---
 
