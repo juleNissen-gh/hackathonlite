@@ -45,7 +45,7 @@ pip install openai
 ```python
 API_KEY  = "sk-din-nøkkel-her"          # Nøkkelen du fikk av arrangør
 BASE_URL = "https://hackathonlite-production.up.railway.app"
-MODEL    = "gemini-2.5-flash"            # Rask og billig – anbefalt
+MODEL    = "gemini-3-flash-preview"      # Rask og kraftig – anbefalt
 ```
 
 ---
@@ -63,7 +63,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="gemini-2.5-flash",
+    model="gemini-3-flash-preview",
     messages=[
         {"role": "user", "content": "Forklar hva et API er på én setning."}
     ],
@@ -91,7 +91,7 @@ messages = [
 ]
 
 response = client.chat.completions.create(
-    model="gemini-2.5-flash",
+    model="gemini-3-flash-preview",
     messages=messages,
 )
 
@@ -103,7 +103,7 @@ messages.append({"role": "assistant", "content": svar})
 messages.append({"role": "user", "content": "Kan du gi et konkret eksempel?"})
 
 response2 = client.chat.completions.create(
-    model="gemini-2.5-flash",
+    model="gemini-3-flash-preview",
     messages=messages,
 )
 print(response2.choices[0].message.content)
@@ -122,7 +122,7 @@ client = OpenAI(
 )
 
 stream = client.chat.completions.create(
-    model="gemini-2.5-flash",
+    model="gemini-3-flash-preview",
     messages=[{"role": "user", "content": "Skriv et kort dikt om kode."}],
     stream=True,
 )
@@ -167,12 +167,12 @@ print(f"Budsjett: ${maks:.2f}")
 
 | Modell | Hastighet | Kvalitet | Anbefalt til |
 |--------|-----------|----------|--------------|
-| `gemini-2.5-flash` | ⚡ Rask | Veldig god | Generell bruk, prototyping – **start her** |
+| `gemini-3-flash-preview` | ⚡ Rask | Frontier | Generell bruk, prototyping – **start her** |
+| `gemini-2.5-flash` | ⚡ Rask | Veldig god | Spar budsjett, nesten like bra |
 | `gemini-2.5-pro` | 🐢 Tregere | Best blant 2.5 | Komplekse oppgaver, kode, analyse |
-| `gemini-3-flash-preview` | ⚡ Rask | Frontier | Vil prøve det nyeste? Her er det |
 | `gemini-3.1-pro-preview` | 🐢 Tregere | Beste totalt | Tyngste oppgaver – bruker mye budsjett |
 
-**Tips:** Start med `gemini-2.5-flash` – god kvalitet, rask og bruker minst budsjett. Bytt til en kraftigere modell om du trenger det.
+**Tips:** Start med `gemini-3-flash-preview` – rask og kraftig. Bytt til `gemini-2.5-flash` om du vil spare budsjett.
 
 ---
 
