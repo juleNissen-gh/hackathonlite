@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hackathon Lite – API-forbruk</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: #f1f5f9;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 0.5rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      font-size: 0.875rem;
+      font-family: monospace;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus { border-color: #6366f1; }
+
+    button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.75rem;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button:hover { background: #4f46e5; }
+    button:disabled { background: #475569; cursor: not-allowed; }
+
+    .result { margin-top: 1.5rem; display: none; }
+
+    .team-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 1rem;
+    }
+
+    .budget-bar-wrap {
+      background: #0f172a;
+      border-radius: 999px;
+      height: 12px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .budget-bar {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+
+    .bar-ok    { background: #22c55e; }
+    .bar-warn  { background: #f59e0b; }
+    .bar-crit  { background: #ef4444; }
+
+    .budget-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 1.25rem;
+    }
+
+    .budget-labels .used { font-weight: 600; color: #e2e8f0; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .stat {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 0.875rem 1rem;
+    }
+
+    .stat-label { font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; }
+    .stat-value { font-size: 1.25rem; font-weight: 700; color: #f1f5f9; }
+    .stat-value.green { color: #22c55e; }
+    .stat-value.red   { color: #ef4444; }
+
+    .error {
+      margin-top: 1rem;
+      padding: 0.875rem 1rem;
+      background: #450a0a;
+      border: 1px solid #7f1d1d;
+      border-radius: 8px;
+      color: #fca5a5;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .refresh-note {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #475569;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Hackathon Lite</h1>
+    <p class="subtitle">Sjekk API-forbruket til laget ditt</p>
+
+    <label for="api-key">Din API-nøkkel</label>
+    <input
+      id="api-key"
+      type="password"
+      placeholder="sk-..."
+      autocomplete="off"
+      spellcheck="false"
+    >
+
+    <button id="check-btn" onclick="checkUsage()">Sjekk forbruk</button>
+
+    <div class="error" id="error-box"></div>
+
+    <div class="result" id="result">
+      <div class="team-name" id="team-name"></div>
+
+      <div class="budget-bar-wrap">
+        <div class="budget-bar" id="budget-bar"></div>
+      </div>
+      <div class="budget-labels">
+        <span>$0</span>
+        <span class="used" id="used-label"></span>
+        <span id="max-label"></span>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Brukt</div>
+          <div class="stat-value red" id="stat-used"></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Igjen</div>
+          <div class="stat-value green" id="stat-left"></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Budsjett</div>
+          <div class="stat-value" id="stat-budget"></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" id="stat-status"></div>
+        </div>
+      </div>
+
+      <p class="refresh-note">Trykk "Sjekk forbruk" igjen for å oppdatere</p>
+    </div>
+  </div>
+
+  <script>
+    // FYLL INN Railway-URL her etter deploy, f.eks.:
+    // const LITELLM_URL = "https://hackathonlite-proxy.up.railway.app";
+    const LITELLM_URL = "";
+
+    const API_BASE = LITELLM_URL || (() => {
+      const saved = localStorage.getItem("litellm_url");
+      if (saved) return saved;
+      const url = prompt("Skriv inn server-URL (får du av arrangør):");
+      if (url) localStorage.setItem("litellm_url", url.replace(/\/$/, ""));
+      return localStorage.getItem("litellm_url") || "";
+    })();
+
+    document.getElementById("api-key").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkUsage();
+    });
+
+    async function checkUsage() {
+      const key = document.getElementById("api-key").value.trim();
+      const btn = document.getElementById("check-btn");
+      const errorBox = document.getElementById("error-box");
+      const resultDiv = document.getElementById("result");
+
+      if (!key) {
+        showError("Lim inn API-nøkkelen din over.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Henter...";
+      errorBox.style.display = "none";
+      resultDiv.style.display = "none";
+
+      try {
+        const res = await fetch(`${API_BASE}/key/info?key=${encodeURIComponent(key)}`, {
+          headers: { Authorization: `Bearer ${key}` },
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.error?.message || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        renderResult(data);
+      } catch (err) {
+        showError(`Klarte ikke å hente forbruk: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Sjekk forbruk";
+      }
+    }
+
+    function renderResult(data) {
+      const info = data.info ?? data;
+      const spent = parseFloat(info.spend ?? 0);
+      const maxBudget = parseFloat(info.max_budget ?? 30);
+      const left = Math.max(0, maxBudget - spent);
+      const pct = Math.min(100, (spent / maxBudget) * 100);
+
+      const team = info.metadata?.team
+        ?? info.key_alias
+        ?? "Laget ditt";
+
+      document.getElementById("team-name").textContent = team;
+      document.getElementById("used-label").textContent = `$${spent.toFixed(4)} brukt`;
+      document.getElementById("max-label").textContent = `$${maxBudget.toFixed(2)}`;
+
+      const bar = document.getElementById("budget-bar");
+      bar.style.width = `${pct}%`;
+      bar.className = "budget-bar " + (pct < 60 ? "bar-ok" : pct < 85 ? "bar-warn" : "bar-crit");
+
+      document.getElementById("stat-used").textContent = `$${spent.toFixed(4)}`;
+      document.getElementById("stat-left").textContent = `$${left.toFixed(4)}`;
+      document.getElementById("stat-budget").textContent = `$${maxBudget.toFixed(2)}`;
+
+      const statusEl = document.getElementById("stat-status");
+      if (left <= 0) {
+        statusEl.textContent = "Tomt";
+        statusEl.style.color = "#ef4444";
+      } else if (pct >= 85) {
+        statusEl.textContent = "Lavt";
+        statusEl.style.color = "#f59e0b";
+      } else {
+        statusEl.textContent = "OK";
+        statusEl.style.color = "#22c55e";
+      }
+
+      document.getElementById("result").style.display = "block";
+    }
+
+    function showError(msg) {
+      const box = document.getElementById("error-box");
+      box.textContent = msg;
+      box.style.display = "block";
+    }
+  </script>
+</body>
+</html>
